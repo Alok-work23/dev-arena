@@ -1,3 +1,5 @@
+import { getHealth } from "../../lib/api";
+
 const stats = [
   { label: "Rating", value: "1542" },
   { label: "Problems Solved", value: "127" },
@@ -5,7 +7,9 @@ const stats = [
   { label: "Global Rank", value: "#842" },
 ];
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const health = await getHealth();
+
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -19,6 +23,16 @@ export default function Dashboard() {
           <p className="mt-2 text-zinc-400">
             Here's what you should focus on today.
           </p>
+
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+            <p className="text-xs text-zinc-500">
+              API STATUS
+            </p>
+
+            <p className="mt-2 text-green-400">
+              {health.message}
+            </p>
+          </div>
         </header>
 
         <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
