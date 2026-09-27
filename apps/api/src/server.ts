@@ -1,6 +1,7 @@
-import app from "./app.ts"
-const PORT = 4000;
+import app from "./app.ts";
 
-app.listen(PORT, () => {
-  console.log(`🚀 DevArena API running on http://localhost:${PORT}`);
+const PORT = Number(process.env.PORT) || 4000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 DevArena API running on port ${PORT}`);
 });
