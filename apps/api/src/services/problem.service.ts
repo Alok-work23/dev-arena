@@ -1,48 +1,92 @@
-import type { Problem } from "../types/problem.js";
-import { problems } from "../data/problems.js";
+import { prisma } from "../lib/prisma.js";
 
 export function getAllProblems() {
-  return problems;
+  return prisma.problem.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      tags: {
+        include: {
+          tag: true,
+        },
+      },
+    },
+  });
 }
 
 export function getProblemById(id: string) {
-  return problems.find((problem) => problem.id === id);
+  return prisma.problem.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      tags: {
+        include: {
+          tag: true,
+        },
+      },
+    },
+  });
 }
 
-export function createProblem(data: Omit<Problem, "id">) {
-  const problem = {
-    id: crypto.randomUUID(),
-    ...data,
-  };
+export function createProblem(data: {
+  title: string;
+  slug: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  description: string;
+  tags?: string[];
+}) {
+  const { tags, ...problemData } = data;
+  return prisma.problem.create({
+    data: {
+      ...problemData,
 
-  problems.push(problem);
+      tags: tags
+        ? {
+            create: tags.map((name) => ({
+              tag: {
+                connectOrCreate: {
+                  where: { name },
+                  create: { name },
+                },
+              },
+            })),
+          }
+        : undefined,
+    },
 
-  return problem;
+    include: {
+      tags: {
+        include: {
+          tag: true,
+        },
+      },
+    },
+  });
 }
 
 export function updateProblem(
   id: string,
-  data: Partial<Omit<Problem, "id">>,
+  data: {
+    title?: string;
+    slug?: string;
+    difficulty?: "EASY" | "MEDIUM" | "HARD";
+    description?: string;
+  },
 ) {
-  const problem = problems.find((problem) => problem.id === id);
-
-  if (!problem) {
-    return undefined;
-  }
-
-  Object.assign(problem, data);
-
-  return problem;
+  return prisma.problem.update({
+    where: {
+      id,
+    },
+    data,
+  });
 }
 
 export function deleteProblem(id: string) {
-  const index = problems.findIndex((problem) => problem.id === id);
-
-  if (index === -1) {
-    return false;
-  }
-
-  problems.splice(index, 1);
-
-  return true;
+  return prisma.problem.delete({
+    where: {
+      id,
+    },
+  });
 }

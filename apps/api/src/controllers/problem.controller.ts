@@ -8,26 +8,8 @@ import {
   updateProblem,
 } from "../services/problem.service.js";
 
-export function getProblems(req: Request, res: Response) {
-  let problems = getAllProblems();
-
-  const difficulty = req.query.difficulty;
-  const tag = req.query.tag;
-
-  if (
-    typeof difficulty === "string" &&
-    ["easy", "medium", "hard"].includes(difficulty)
-  ) {
-    problems = problems.filter(
-      (problem) => problem.difficulty === difficulty,
-    );
-  }
-
-  if (typeof tag === "string") {
-    problems = problems.filter((problem) =>
-      problem.tags.includes(tag),
-    );
-  }
+export async function getProblems(_req: Request, res: Response) {
+  const problems = await getAllProblems();
 
   res.status(200).json({
     success: true,
@@ -35,8 +17,8 @@ export function getProblems(req: Request, res: Response) {
   });
 }
 
-export function getProblem(req: Request, res: Response) {
-  const problem = getProblemById(req.params.id);
+export async function getProblem(req: Request, res: Response) {
+  const problem = await getProblemById(req.params.id);
 
   if (!problem) {
     res.status(404).json({
@@ -53,8 +35,8 @@ export function getProblem(req: Request, res: Response) {
   });
 }
 
-export function postProblem(req: Request, res: Response) {
-  const problem = createProblem(req.body);
+export async function postProblem(req: Request, res: Response) {
+  const problem = await createProblem(req.body);
 
   res.status(201).json({
     success: true,
@@ -62,17 +44,8 @@ export function postProblem(req: Request, res: Response) {
   });
 }
 
-export function patchProblem(req: Request, res: Response) {
-  const problem = updateProblem(req.params.id, req.body);
-
-  if (!problem) {
-    res.status(404).json({
-      success: false,
-      message: "Problem not found",
-    });
-
-    return;
-  }
+export async function patchProblem(req: Request, res: Response) {
+  const problem = await updateProblem(req.params.id, req.body);
 
   res.status(200).json({
     success: true,
@@ -80,17 +53,8 @@ export function patchProblem(req: Request, res: Response) {
   });
 }
 
-export function removeProblem(req: Request, res: Response) {
-  const deleted = deleteProblem(req.params.id);
-
-  if (!deleted) {
-    res.status(404).json({
-      success: false,
-      message: "Problem not found",
-    });
-
-    return;
-  }
+export async function removeProblem(req: Request, res: Response) {
+  await deleteProblem(req.params.id);
 
   res.status(204).send();
 }
